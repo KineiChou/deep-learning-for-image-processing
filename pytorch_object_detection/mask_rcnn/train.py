@@ -6,7 +6,7 @@ from torchvision.ops.misc import FrozenBatchNorm2d
 
 import transforms
 from network_files import MaskRCNN
-from backbone import resnet50_fpn_backbone
+from backbone import resnext50_32x4d_fpn_backbone
 from my_dataset_coco import CocoDetection
 from my_dataset_voc import VOCInstances
 from train_utils import train_eval_utils as utils
@@ -20,7 +20,7 @@ def create_model(num_classes, load_pretrain_weights=True):
     # backbone = resnet50_fpn_backbone(norm_layer=FrozenBatchNorm2d,
     #                                  trainable_layers=3)
     # resnet50 imagenet weights url: https://download.pytorch.org/models/resnet50-0676ba61.pth
-    backbone = resnet50_fpn_backbone(pretrain_path="resnet50.pth", trainable_layers=3)
+    backbone = resnext50_32x4d_fpn_backbone(weights="DEFAULT", trainable_layers=2)
 
     model = MaskRCNN(backbone, num_classes=num_classes)
 
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     # 训练设备类型
     parser.add_argument('--device', default='cuda:0', help='device')
     # 训练数据集的根目录
-    parser.add_argument('--data-path', default='/data/coco2017', help='dataset')
+    parser.add_argument('--data-path', default='./data/coco2017', help='dataset')
     # 检测目标类别数(不包含背景)
     parser.add_argument('--num-classes', default=90, type=int, help='num_classes')
     # 文件保存地址
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', default=2, type=int, metavar='N',
                         help='batch size when training.')
     parser.add_argument('--aspect-ratio-group-factor', default=3, type=int)
-    parser.add_argument("--pretrain", type=bool, default=True, help="load COCO pretrain weights.")
+    parser.add_argument("--pretrain", type=bool, default=False, help="load COCO pretrain weights.")
     # 是否使用混合精度训练(需要GPU支持混合精度)
     parser.add_argument("--amp", default=False, help="Use torch.cuda.amp for mixed precision training")
 

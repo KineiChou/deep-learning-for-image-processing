@@ -1,1 +1,2 @@
-from .resnet50_fpn_model import resnet50_fpn_backbone
+#from .resnet50_fpn_model import resnet50_fpn_backbone
+from .resnext50_32x4d_fpn_model import resnext50_32x4d_fpn_backbone
