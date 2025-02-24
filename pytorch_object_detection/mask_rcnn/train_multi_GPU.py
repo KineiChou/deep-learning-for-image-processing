@@ -8,7 +8,7 @@ from torchvision.ops.misc import FrozenBatchNorm2d
 import transforms
 from my_dataset_coco import CocoDetection
 from my_dataset_voc import VOCInstances
-from backbone import resnet50_fpn_backbone
+from backbone import resnext50_32x4d_fpn_backbone
 from network_files import MaskRCNN
 import train_utils.train_eval_utils as utils
 from train_utils import GroupedBatchSampler, create_aspect_ratio_groups, init_distributed_mode, save_on_master, mkdir
@@ -21,7 +21,7 @@ def create_model(num_classes, load_pretrain_weights=True):
     # backbone = resnet50_fpn_backbone(norm_layer=FrozenBatchNorm2d,
     #                                  trainable_layers=3)
     # resnet50 imagenet weights url: https://download.pytorch.org/models/resnet50-0676ba61.pth
-    backbone = resnet50_fpn_backbone(pretrain_path="resnet50.pth", trainable_layers=3)
+    backbone = resnext50_32x4d_fpn_backbone(weights="DEFAULT", trainable_layers=2)
     model = MaskRCNN(backbone, num_classes=num_classes)
 
     if load_pretrain_weights:

@@ -9,12 +9,16 @@ from .coco_eval import EvalCOCOMetric
 
 
 def train_one_epoch(model, optimizer, data_loader, device, epoch,
-                    print_freq=50, warmup=False, scaler=None):
+                    print_freq=50, warmup=False, scaler=None, viz=None, viz_win_opts=None):
     model.train()
     metric_logger = utils.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', utils.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     header = 'Epoch: [{}]'.format(epoch)
 
+    if viz and viz.check_connection():
+        losses_list, mloss_list, batch_list= [], [], []
+        cur_batch_win = "Epoch_Loss#{}".format(epoch)
+        
     lr_scheduler = None
     if epoch == 0 and warmup is True:  # 当训练第一轮（epoch=0）时，启用warmup训练方式，可理解为热身训练
         warmup_factor = 1.0 / 1000
@@ -25,7 +29,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch,
     mloss = torch.zeros(1).to(device)  # mean losses
     for i, [images, targets] in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
         images = list(image.to(device) for image in images)
-        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]       
 
         # 混合精度训练上下文管理器，如果在CPU环境中不起任何作用
         with torch.cuda.amp.autocast(enabled=scaler is not None):
@@ -40,6 +44,29 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch,
         loss_value = losses_reduced.item()
         # 记录训练损失
         mloss = (mloss * i + loss_value) / (i + 1)  # update mean losses
+        
+        
+        # if viz.check_connection():
+        #     losses_list.append(loss_value)
+        #     mloss_list.append(mloss.item())
+        #     batch_list.append(i)
+        #     cur_batch_win = viz.line(
+	    #         torch.Tensor(losses_list), 
+	    #         torch.Tensor(batch_list),
+        #         win=cur_batch_win, 
+        #         name='current_batch_loss',
+        #         update=(None if cur_batch_win is None else 'replace'),                 
+        #         opts=viz_win_opts
+        #     )
+        #     cur_batch_win = viz.line(
+	    #         torch.Tensor(losses_list), 
+	    #         torch.Tensor(batch_list),
+        #         win=cur_batch_win, 
+        #         name='current_batch_mloss',
+        #         update=(None if cur_batch_win is None else 'replace'),                 
+        #         opts=viz_win_opts
+        #     )
+            
 
         if not math.isfinite(loss_value):  # 当计算的损失为无穷大时停止训练
             print("Loss is {}, stopping training".format(loss_value))
