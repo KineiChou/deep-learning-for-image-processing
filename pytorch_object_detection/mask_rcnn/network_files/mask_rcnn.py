@@ -122,7 +122,7 @@ class MaskRCNN(FasterRCNN):
             box_predictor=None,
             box_score_thresh=0.05,
             box_nms_thresh=0.5,
-            box_detections_per_img=100,
+            box_detections_per_img=300,
             box_fg_iou_thresh=0.5,
             box_bg_iou_thresh=0.5,
             box_batch_size_per_image=512,
